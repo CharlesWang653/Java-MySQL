@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Fan</title>
+
+	<script type="text/javascript" src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+
+	<style type="text/css">
+		html{
+			background-image: url("../assets/jordan.jpeg");
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			text-align: center;
+		}
+		h1{
+			color: white;
+		}
+		.fanWrapper{
+			position: absolute;
+			width: 1000px;
+			margin: 0 auto;
+			display: flex;
+			color: white;
+		}
+		table{
+			margin: 0 auto;
+		}
+		.searchPlayer{
+			width: 500px;
+		}
+		.myVotingList{
+			width: 500px;
+		}
+		p{
+			width: 100px;
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<h1 class="welcome">Fan</h1>
+	</div>
+	<div class="fanWrapper">
+		<div class="searchPlayer">
+			<h5>Search a player by id</h5>
+			<input type="text" class="playerName">
+			<button class="searchPlayerBtn">Search</button>
+			<br>
+			<br>
+			<table class="playerDetailTable" border="1">
+				<thead class="playerDetailHead"></thead>
+				<tbody class="playerDetailBody"></tbody>
+			</table>
+			<button class="vote">Vote For this player</button>
+		</div>
+		<div class="myVotingList">
+			<h5>My Voting List</h5>
+			<table class="VotingListTable" border="1">
+				<thead class="VotingListHead"></thead>
+				<tbody class="VotingListBody"></tbody>
+			</table>
+			<div>
+				<h5>Cancel Voting</h5>
+				<p>ID</p>
+				<input type="text" class="cancelId">
+				<button class="cancelVotingBtn">Cancel Voting</button>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	function getParams(key) {
+        var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    };
+
+    var id = getParams("id")
+    var username = getParams("username")
+
+    $(".welcome").text("Fan: " + username + ", welcome!")
+
+	$(document).ready(function(){
+		$(".vote").hide();
+	})
+
+	var playerId = 0
+
+	$(".searchPlayerBtn").click(function(){
+		var playerName = $(".playerName").val()
+		console.log(playerName)
+
+		$(".vote").show();
+
+		var url = "http://localhost:8080/api/fans/" + playerName + "/player"
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	var data = result
+            	playerId = data.id
+
+            	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>ID</th>"
+		    	html +=     "<th>Name</th>"
+		    	html +=     "<th>Team</th>"
+		        html += "</tr>"
+				$(".playerDetailHead").html(html)
+				// table body
+		        var html2 = "";
+		        html2 += "<tr>"
+		        html2 +=     "<td>" + data.id + "</td>"
+		        html2 +=     "<td>" + data.name + "</td>"
+		        html2 +=     "<td>" + data.team.title + "</td>"
+		        html2 += "</tr>"
+		        $(".playerDetailBody").html(html2)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+	})
+
+	$(".vote").click(function(){
+		var url = "http://localhost:8080/api/fans/" + id + "/" + playerId
+		console.log(url)
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	alert("vote successful!")  
+            },
+            error: function(e) {
+            	console.log(e) 
+            }
+		})
+		location.reload(true)
+	})
+
+	$(document).ready(function(){
+		var url = "http://localhost:8080/api/fans/" + id + "/allstarVote"
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	var data = result
+            	console.log(data)
+            	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>ID</th>"
+		    	html +=     "<th>Name</th>"
+		    	html +=     "<th>Team</th>"
+		        html += "</tr>"
+				$(".VotingListHead").html(html)
+				// table body
+		        var html2 = "";
+		        for(var i=0; i<data.length; i++){
+		        	html2 += "<tr>"
+			        html2 +=     "<td>" + data[i].player.id + "</td>"
+			        html2 +=     "<td>" + data[i].player.name + "</td>"
+			        html2 +=     "<td>" + data[i].player.team.title + "</td>"
+			        html2 += "</tr>"
+		        }
+		        $(".VotingListBody").html(html2)
+		        console.log(html2)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+	})
+
+	$(".cancelVotingBtn").click(function(){
+		var pid = $(".cancelId").val()
+		url = "http://localhost:8080/api/fans/" + id + "/" + pid + "/delete"
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	alert("Cancel successful!")
+            },
+            error: function(e) {
+            	console.log(e)
+            }
+		})
+		location.reload(true)
+	})
+</script>
+</html>

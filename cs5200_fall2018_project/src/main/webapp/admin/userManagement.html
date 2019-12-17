@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>User Management</title>
+
+	<script type="text/javascript" src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+
+	<style type="text/css">
+		html{
+			background-image: url("../assets/jordan.jpeg");
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			text-align: center;
+		}
+		h1{
+			color: white;
+		}
+		.user{
+			height: 700px;
+			width: 1000px;
+			color: white;
+			border: 1px solid white;
+			margin: 0 auto;
+		}
+		.method{
+			display: flex;
+		}
+		.updateMethod{		
+			width: 300px;
+		}
+		.viewMethod{
+			width: 700px;
+		}
+		.userTable{
+			margin: 0 auto;
+		}
+		p{
+			width: 100px;
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<h1>Admin</h1>
+	</div>
+	<div class="user">
+		<h2>User Management</h2>
+		<div class="method">
+			<div class="updateMethod">
+				<div>
+					<div>
+						<h5>Create and Update User</h5>
+						<p>ID</p>
+						<input type="text" class="id">
+						<button class="getPersonBtn">Sync data</button><br>
+						<p>Dob</p>
+						<input type="text" class="dob">
+						<p>Email</p>
+						<input type="text" class="email">
+						<p>FirstName</p>
+						<input type="text" class="firstname"><br>
+						<p>LastName</p>
+						<input type="text" class="lastname"><br>
+						<p>Username</p>
+						<input type="text" class="username"><br>
+						<p>Password</p>
+						<input type="text" class="password"><br>
+						<p>Type</p>
+						<input type="text" class="type">
+						<button class="createUserBtn">Create User</button>
+						<button class="updateUserBtn">Update User</button>
+					</div>
+					<div>
+						<h5>Delete User</h5>
+						<p>ID</p>
+						<input type="text" class="deleteid">
+						<button class="deleteUserBtn">Delete User</button>
+					</div>
+				</div>
+			</div>
+			<div class="viewMethod">
+				<h5>View Users</h5>
+				<br>
+				<br>
+				<table class="userTable" border="1">
+					<thead class="userTableHead"></thead>
+				    <tbody class="userTableBody"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+</body>
+
+<script type="text/javascript">
+
+	$(".createUserBtn").click(function(){
+		// var id = $(".id").val()
+		var dob = $(".dob").val()
+		var email = $(".email").val()
+		var firstname = $(".firstname").val()
+		var lastname = $(".lastname").val()
+		var username = $(".username").val()
+		var password = $(".password").val()
+		var type = $(".type").val()
+
+		var url = "http://localhost:8080/api/admin/addperson/" + firstname + "/" + lastname + "/" + username + "/" + password + "/" + type + "/" + dob + "/" + email
+		$.ajax({
+            type: "GET",
+            url: url,
+            dataType: "json",
+            success: function (result) {
+            	console.log("success")
+            },
+            error: function (e) {
+                var test = e;
+            }
+        })
+        location.reload(true)
+	})
+
+	$(".getPersonBtn").click(function(){
+		var id = $(".id").val()
+
+		var url = "http://localhost:8080//api/admin/" + id + "/person"
+		$.ajax({
+            type: "GET",
+            url: url,
+            dataType: "json",
+            success: function (result) {
+            	var data = result
+            	console.log(data)
+            	$(".dob").val(data.dob)
+				$(".email").val(data.email)
+				$(".firstname").val(data.firstname)
+				$(".lastname").val(data.lastname)
+				$(".username").val(data.username)
+				$(".password").val(data.password)
+				$(".type").val(data.type)
+            },
+            error: function (e) {
+                var test = e;
+            }
+        })
+	})
+
+	$(".updateUserBtn").click(function(){
+		var id = $(".id").val()
+		var dob = $(".dob").val()
+		var email = $(".email").val()
+		var firstname = $(".firstname").val()
+		var lastname = $(".lastname").val()
+		var username = $(".username").val()
+		var password = $(".password").val()
+		var type = $(".type").val()
+
+		var url = "http://localhost:8080/api/admin/addperson/" + id + "/" + firstname + "/" + lastname + "/" + username + "/" + password + "/" + type + "/" + dob + "/" + email
+		$.ajax({
+            type: "GET",
+            url: url,
+            dataType: "json",
+            success: function (result) {
+            	console.log("success")
+            },
+            error: function (e) {
+                var test = e;
+            }
+        })
+        location.reload(true)
+	})
+
+	$(".deleteUserBtn").click(function(){
+		var id = $(".deleteid").val()
+
+		var url = "http://localhost:8080/api/admin/" + id + "/delete"
+		$.ajax({
+            type: "GET",
+            url: url,
+            dataType: "json",
+            success: function (result) {
+            	console.log("success")
+            },
+            error: function (e) {
+                var test = e;
+            }
+        })
+        location.reload(true)
+	})
+
+    $(".document").ready(function(){
+    	$.ajax({
+            type: "GET",
+            url: "http://localhost:8080/api/person/getAllPerson",
+            dataType: "json",
+            success: function (result) {
+            	console.log(result)
+                var data = result
+                // table head
+		    	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>ID</th>"
+		    	html +=     "<th>Dob</th>"
+		    	html +=     "<th>Email</th>"
+		    	html +=     "<th>FirstName</th>"
+		    	html +=     "<th>LastName</th>"
+		        html +=     "<th>Username</th>"
+		        html +=     "<th>Password</th>"
+		        html +=     "<th>Type</th>"
+		        html += "</tr>"
+				$(".userTableHead").html(html)
+				// table body
+		        var html2 = "";
+		        for( var i = 0; i < data.length; i++ ) {
+		            html2 += "<tr>"
+		            html2 +=     "<td>" + data[i].id + "</td>"
+		            html2 +=     "<td>" + data[i].dob + "</td>"
+		            html2 +=     "<td>" + data[i].email + "</td>"
+		            html2 +=     "<td>" + data[i].firstname + "</td>"
+		            html2 +=     "<td>" + data[i].lastname + "</td>"
+		            html2 +=     "<td>" + data[i].username + "</td>"
+		            html2 +=     "<td>" + data[i].password + "</td>"
+		            html2 +=     "<td>" + data[i].type + "</td>"
+		            html2 += "</tr>"
+		        }
+		        $(".userTableBody").html(html2)
+            },
+            error: function (e) {
+                var test = e;
+            }
+        })
+	})
+</script>
+</html>

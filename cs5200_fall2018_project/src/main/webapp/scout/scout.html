@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Scout</title>
+
+	<script type="text/javascript" src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+
+	<style type="text/css">
+		html{
+			background-image: url("../assets/jordan.jpeg");
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			text-align: center;
+			color: white;
+		}
+		.searchWrapper{
+			width: 1050px;
+			display: flex;
+		}
+		.player{
+			width: 350px;
+		}
+		.draft{
+			width: 350px;
+		}
+		.boss{
+			width: 350px;
+		}
+		.reportWrapper{
+			width: 1000px;
+			display: flex;
+		}
+		.writeReport{
+			width: 500px;
+			border: 1px solid white;
+		}
+		.report{
+			width: 500px;
+			border: 1px solid white;
+		}
+		.reportContent{
+			width: 300px;
+			height: 150px;
+		}
+		table{
+			margin: 0 auto;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<h1 class="welcome">Scout</h1>
+	</div>
+	<div class="searchWrapper">
+		<div class="player">
+			<h5>Search a player by name</h5>
+			<input type="text" class="playerName">
+			<button class="searchPlayerBtn">Search</button>
+			<br>
+			<br>
+			<table class="playerDetailTable" border="1">
+				<thead class="playerDetailHead"></thead>
+				<tbody class="palyerDetailBody"></tbody>
+			</table>
+		</div>
+		<div class="draft">
+			<h5>Search draft by year</h5>
+			<input type="text" class="draftYear">
+			<button class="searchDraftBtn">Search</button>
+			<br>
+			<br>
+			<table class="draftTable" border="1">
+				<thead class="draftTableHead"></thead>
+				<tbody class="draftTableBody"></tbody>
+			</table>
+		</div>
+		<div class="boss">
+			<h5>Boss List</h5>
+			<table class="bossTable" border="1">
+				<thead class="bossTableHead"></thead>
+				<tbody class="bossTableBody"></tbody>
+			</table>
+		</div>
+	</div>
+	<div class="reportWrapper">
+		<div class="writeReport">
+			<h5>Write report to a boss by bossid</h5>
+			<div>
+				<p>BossID</p>
+				<input type="text" class="bossId">
+			</div>
+			<div>
+				<p>Report</p>
+				<textarea class="reportContent"></textarea>
+			</div>
+			<button class="sendReportBtn">send report</button>
+		</div>
+		<div class="report">
+			<h5>Report List</h5>
+			<table class="reportTable" border="1">
+				<thead class="reportTableHead"></thead>
+				<tbody class="reportTableBody"></tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	function getParams(key) {
+        var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    };
+
+    var id = getParams("id")
+    var username = getParams("username")
+
+    $(".welcome").text("Scout: " + username + ", welcome!")
+
+    $(document).ready(function(){
+		var url = "http://localhost:8080/api/bosses/getAllBosses"
+		console.log(url)
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	console.log(result)
+            	var data = result
+            	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>BossID</th>"
+		    	html +=     "<th>Name</th>"
+		    	html +=     "<th>Team</th>"
+		        html += "</tr>"
+				$(".bossTableHead").html(html)
+				// table body
+		        var html2 = "";
+		        for(var i=0; i<data.length; i++){
+		        	html2 += "<tr>"
+			        html2 +=     "<td>" + data[i].id + "</td>"
+			        html2 +=     "<td>" + data[i].username + "</td>"
+			        html2 +=     "<td>" + data[i].team.title + "</td>"
+			        html2 += "</tr>"
+		        }
+        		$(".bossTableBody").html(html2)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+
+		var url2 = "http://localhost:8080/api/Scout/" + id + "/Report"
+		$.ajax({
+			type: "GET",
+            url: url2,
+            dataType: "json",
+            success: function(result){
+            	console.log(result)
+            	var data = result
+            	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>BossID</th>"
+		    	html +=     "<th>reportContent</th>"
+		        html += "</tr>"
+				$(".reportTableHead").html(html)
+				// table body
+		        var html2 = "";
+		        for(var i=0; i<data.length; i++){
+		        	html2 += "<tr>"
+			        html2 +=     "<td>" + data[i].boss.id + "</td>"
+			        html2 +=     "<td>" + data[i].reportbody + "</td>"
+			        html2 += "</tr>"
+		        }
+        		$(".reportTableBody").html(html2)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+	})
+
+    // search player by name
+	$(".searchPlayerBtn").click(function(){
+		var playerName = $(".playerName").val()
+		var url = "http://localhost:8080/api/fans/" + playerName + "/player"
+		console.log(url)
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	var data = result
+            	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>ID</th>"
+		    	html +=     "<th>Name</th>"
+		    	html +=     "<th>Team</th>"
+		        html += "</tr>"
+				$(".playerDetailHead").html(html)
+				// table body
+		        var html2 = "";
+		        
+		        html2 += "<tr>"
+		        html2 +=     "<td>" + data.id + "</td>"
+		        html2 +=     "<td>" + data.name + "</td>"
+		        html2 +=     "<td>" + data.team.title + "</td>"
+		        html2 += "</tr>"
+        		$(".palyerDetailBody").html(html2)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+	})
+
+	// search draft by year
+	$(".searchDraftBtn").click(function(){
+		var draftYear = $(".draftYear").val()
+		var url = "http://localhost:8080/api/Scout/Drafts/" + draftYear
+		console.log(url)
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	console.log(result)
+            	var data = result
+            	var html = "";
+		    	html += "<tr>"
+		    	html +=     "<th>Order</th>"
+		    	html +=     "<th>Name</th>"
+		    	html +=     "<th>Team</th>"
+		        html += "</tr>"
+				$(".draftTableHead").html(html)
+				// table body
+		        var html2 = "";
+		        for(var i=0; i<data.length; i++){
+		        	html2 += "<tr>"
+			        html2 +=     "<td>" + data[i].order + "</td>"
+			        html2 +=     "<td>" + data[i].player.name + "</td>"
+			        html2 +=     "<td>" + data[i].player.team.title + "</td>"
+			        html2 += "</tr>"
+		        }
+        		$(".draftTableBody").html(html2)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+	})
+
+	$(".sendReportBtn").click(function(){
+		var bossId = $(".bossId").val()
+		var reportContent = $(".reportContent").val()
+		
+		var url = "/api/Scout/" + id +"/" + bossId + "/" + reportContent
+		console.log(url)
+		$.ajax({
+			type: "GET",
+            url: url,
+            dataType: "json",
+            success: function(result){
+            	console.log("success")
+            },
+            error: function(e) {
+                console.log(e)
+            }
+		})
+
+		location.reload(true)
+	})
+
+
+</script>
+</html>

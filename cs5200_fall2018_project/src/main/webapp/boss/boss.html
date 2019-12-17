@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Boss</title>
+
+	<script type="text/javascript" src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+
+	<style type="text/css">
+		html{
+			background-image: url("../assets/jordan.jpeg");
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			text-align: center;
+			color: white;
+		}
+		.boss{
+			position: absolute;
+			width: 1200px;
+			margin: 0 auto;
+			display: flex;
+		}
+		.teamManagementWrapper{
+			width: 600px;
+		}
+		.reportManagement{
+			width: 300px;
+		}
+		.report{
+			position: relative;
+			top: 22px;
+		}
+		.teamManagement{
+			display: flex;
+		}
+		.team{
+			width: 350px;
+		}
+		.stadium{
+			width: 350px;
+		}
+		table{
+			margin: 0 auto;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<h1 class="welcome">Boss</h1>
+	</div>
+	<div class="boss">
+		<div class="teamManagementWrapper">
+			<h5>Team Management</h5>
+			<div class="teamManagement">
+				<div class="team">
+					<h5>Team</h5>
+					<table class="teamTable" border="1">
+						<thead class="teamTableHead"></thead>
+						<tbody class="teamTableBody"></tbody>
+					</table>
+				</div width="250px">
+				<div class="stadium">
+					<h5>Stadium</h5>
+					<table class="stadiumTable" border="1">
+						<thead class="stadiumTableHead"></thead>
+						<tbody class="stadiumTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="reportManagement">
+			<h5>Report Management</h5>
+			<div class="report">
+				<h5>Report</h5>
+				<table class="reportTable" border="1">
+					<thead class="reportTableHead"></thead>
+					<tbody class="reportTableBody"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	function getParams(key) {
+        var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    };
+
+	$(document).ready(function(){
+
+		var id = getParams("id");
+		var username = getParams("username")
+		$(".welcome").text("Boss: " + username + ", welcome!")
+
+		// team
+		var url1 = "http://localhost:8080/api/Bosses/" + id + "/Teams"
+		$.ajax({
+            type: "GET",
+            url: url1,
+            dataType: "json",
+            success: function(result) {
+            	var data = result
+            	var url2 = "http://localhost:8080/api/Bosses/" + id + "/Sponsor";
+            	$.ajax({
+            		type: "GET",
+		            url: url2,
+		            dataType: "json",
+		            success: function(result2) {
+		            	var data2 = result2
+		            	if (data.sponsor_amount == undefined) {
+		            		data.sponsor_amount = 0
+		            	}
+		            	if (data2.username == undefined) {
+		            		data2.username = "none"
+		            	}
+		            	// team
+						var html = "";
+				    	html += "<tr>"
+				    	html +=     "<th>ID</th>"
+				    	html +=     "<th>Title</th>"
+				    	html +=     "<th>Sponsor Amount</th>"
+				    	html +=		"<th>Sponsor</th>"
+				        html += "</tr>"
+						$(".teamTableHead").html(html)
+						// table body
+				        var html2 = "";
+				        html2 += "<tr>"
+				        html2 +=     "<td>" + data.id + "</td>"
+				        html2 +=     "<td>" + data.title + "</td>"
+				        html2 +=     "<td>" + data.sponsor_amount + "</td>"
+				        html2 +=     "<td>" + data2.username + "</td>"
+				        html2 += "</tr>"
+				        $(".teamTableBody").html(html2)
+		            },
+		            error: function(e) {
+		                console.log(e)
+		            }
+            	})
+            },
+            error: function(e) {
+                console.log(e)
+            }
+        })
+
+		// stadium
+		var url3 = "http://localhost:8080/api/Bosses/" + id + "/Stadium"
+		$.ajax({
+    		type: "GET",
+            url: url3,
+            dataType: "json",
+            success: function(result) {
+            	var data = result
+            	// stadium
+		        var html3 = "";
+		    	html3 += "<tr>"
+		    	html3 +=     "<th>ID</th>"
+		    	html3 +=     "<th>Name</th>"
+		    	html3 +=     "<th>Seats</th>"
+		        html3 += "</tr>"
+				$(".stadiumTableHead").html(html3)
+				// table body
+		        var html4 = "";
+		        
+		        html4 += "<tr>"
+		        html4 +=     "<td>" + data.id + "</td>"
+		        html4 +=     "<td>" + data.name + "</td>"
+		        html4 +=     "<td>" + data.seats + "</td>"
+		        html4 += "</tr>"
+		        $(".stadiumTableBody").html(html4)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+        })
+
+        // report
+        var url4 = "http://localhost:8080/api/Bosses/" + id + "/Reports"
+		$.ajax({
+    		type: "GET",
+            url: url4,
+            dataType: "json",
+            success: function(result) {
+            	var data = result
+            	// report
+		        var html5 = "";
+		    	html5 += "<tr>"
+		    	html5 +=     "<th>Scout ID</th>"
+		    	html5 +=     "<th>Scout Name</th>"
+		    	html5 +=     "<th>Report Content</th>"
+		        html5 += "</tr>"
+				$(".reportTableHead").html(html5)
+				// table body
+		        var html6 = "";
+		        for(var i=0; i<data.length; i++){
+		        	html6 += "<tr>"
+			        html6 +=     "<td>" + data[i].scout.id + "</td>"
+			        html6 +=     "<td>" + data[i].scout.username+ "</td>"
+			        html6 +=     "<td>" + data[i].reportbody + "</td>"
+			        html6 += "</tr>"
+		        }
+		        $(".reportTableBody").html(html6)
+            },
+            error: function(e) {
+                console.log(e)
+            }
+        })
+        
+	})
+</script>
+</html>
